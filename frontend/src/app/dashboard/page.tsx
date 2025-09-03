@@ -16,6 +16,7 @@ const { Title, Text } = Typography;
 
 const DashboardPage = () => {
   const { user, isLoadingUser, logout, isAuthenticated } = useAuth();
+  console.log({ user });
   const { cashbooks, isLoadingCashbooks, deleteCashbook, deleteCashbookMutation } = useCashbooks();
   const { transactions, transactionStats } = useTransactions();
   const router = useRouter();
@@ -157,11 +158,11 @@ const DashboardPage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <Title level={2} className="text-2xl font-bold text-gray-800 mb-0">
-                Dashboard Overview
+                Dashboard
               </Title>
               <div className="flex items-center space-x-4">
                 <Text className="text-gray-600">
-                  Welcome, {user?.name}!
+                  Welcome, {user?.user.name}!
                 </Text>
                 <Button
                   onClick={() => logout()}
@@ -176,14 +177,14 @@ const DashboardPage = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center mb-8">
+          {/* <div className="mb-8">
             <Title level={1} className="text-4xl font-bold text-gray-800 mb-4">
               Welcome to Your Dashboard
             </Title>
             <Text className="text-xl text-gray-600">
               Start managing your finances with Ledgerly
             </Text>
-          </div>
+          </div> */}
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

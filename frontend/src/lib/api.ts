@@ -271,8 +271,8 @@ export const authApi = {
   },
 
   // Get current user
-  getCurrentUser: async (): Promise<AuthResponse['user']> => {
-    const response = await fetchApi<AuthResponse['user']>('/api/users/me');
+  getCurrentUser: async (): Promise<AuthResponse> => {
+    const response = await fetchApi<AuthResponse>('/api/users/me');
 
     if (response.status && response.data) {
       return response.data;
