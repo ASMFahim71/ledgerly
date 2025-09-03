@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import AddTransactionDrawer from '~/components/AddTransactionDrawer';
 import CategoryAssignmentModal from '~/components/CategoryAssignmentModal';
 import type { Transaction } from '~/lib/api';
+import DashboardLayout from '~/components/DashboardLayout';
 
 const { Title, Text } = Typography;
 
@@ -216,201 +217,203 @@ const CashbookDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Button
-                onClick={handleBackToDashboard}
-                className="mr-4"
-                icon={<Icon icon="lucide:arrow-left" size={16} />}
-              >
-                Back
-              </Button>
-              <Icon icon="lucide:book-open" size={32} className="text-blue-600 mr-3" />
-              <div>
-                <Title level={2} className="text-2xl font-bold text-gray-800 mb-0">
-                  {cashbook.name}
-                </Title>
-                <Text className="text-gray-600">
-                  {cashbook.description || 'No description'}
-                </Text>
+    <DashboardLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center">
+                <Button
+                  onClick={handleBackToDashboard}
+                  className="mr-4"
+                  icon={<Icon icon="lucide:arrow-left" size={16} />}
+                >
+                  Back
+                </Button>
+                <Icon icon="lucide:book-open" size={32} className="text-blue-600 mr-3" />
+                <div>
+                  <Title level={2} className="text-2xl font-bold text-gray-800 mb-0">
+                    {cashbook.name}
+                  </Title>
+                  <Text className="text-gray-600">
+                    {cashbook.description || 'No description'}
+                  </Text>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                type="link"
-                onClick={() => router.push('/categories')}
-                className="text-gray-600 hover:text-blue-600"
-              >
-                <Icon icon="lucide:tag" size={16} className="mr-1" />
-                Categories
-              </Button>
-              <Text className="text-gray-600">
-                Welcome, {user?.name}!
-              </Text>
-              <Button
-                onClick={() => logout()}
-                className="bg-red-600 hover:bg-red-700 border-0 text-white"
-              >
-                Logout
-              </Button>
+              <div className="flex items-center space-x-4">
+                <Button
+                  type="link"
+                  onClick={() => router.push('/categories')}
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  <Icon icon="lucide:tag" size={16} className="mr-1" />
+                  Categories
+                </Button>
+                <Text className="text-gray-600">
+                  Welcome, {user?.name}!
+                </Text>
+                <Button
+                  onClick={() => logout()}
+                  className="bg-red-600 hover:bg-red-700 border-0 text-white"
+                >
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Cashbook Stats */}
-        <Row gutter={16} className="mb-8">
-          <Col span={6}>
-            <Card className="shadow-md">
-              <Statistic
-                title="Current Balance"
-                value={cashbook.current_balance}
-                precision={2}
-                prefix="$"
-                valueStyle={{ color: cashbook.current_balance >= 0 ? '#10b981' : '#ef4444' }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card className="shadow-md">
-              <Statistic
-                title="Initial Balance"
-                value={cashbook.initial_balance}
-                precision={2}
-                prefix="$"
-                valueStyle={{ color: '#6b7280' }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card className="shadow-md">
-              <Statistic
-                title="Total Transactions"
-                value={transactions.length}
-                valueStyle={{ color: '#3b82f6' }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card className="shadow-md">
-              <Statistic
-                title="Status"
-                value={cashbook.is_active ? 'Active' : 'Inactive'}
-                valueStyle={{ color: cashbook.is_active ? '#10b981' : '#ef4444' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Transaction Stats */}
-        {transactionStats && (
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Cashbook Stats */}
           <Row gutter={16} className="mb-8">
-            <Col span={8}>
+            <Col span={6}>
               <Card className="shadow-md">
                 <Statistic
-                  title="Total Income"
-                  value={transactionStats.stats.total_income}
+                  title="Current Balance"
+                  value={cashbook.current_balance}
                   precision={2}
                   prefix="$"
-                  valueStyle={{ color: '#10b981' }}
+                  valueStyle={{ color: cashbook.current_balance >= 0 ? '#10b981' : '#ef4444' }}
                 />
               </Card>
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <Card className="shadow-md">
                 <Statistic
-                  title="Total Expenses"
-                  value={transactionStats.stats.total_expenses}
+                  title="Initial Balance"
+                  value={cashbook.initial_balance}
                   precision={2}
                   prefix="$"
-                  valueStyle={{ color: '#ef4444' }}
+                  valueStyle={{ color: '#6b7280' }}
                 />
               </Card>
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <Card className="shadow-md">
                 <Statistic
-                  title="Net Amount"
-                  value={transactionStats.stats.net_amount}
-                  precision={2}
-                  prefix="$"
-                  valueStyle={{ color: transactionStats.stats.net_amount >= 0 ? '#10b981' : '#ef4444' }}
+                  title="Total Transactions"
+                  value={transactions.length}
+                  valueStyle={{ color: '#3b82f6' }}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card className="shadow-md">
+                <Statistic
+                  title="Status"
+                  value={cashbook.is_active ? 'Active' : 'Inactive'}
+                  valueStyle={{ color: cashbook.is_active ? '#10b981' : '#ef4444' }}
                 />
               </Card>
             </Col>
           </Row>
-        )}
 
-        {/* Transactions Table */}
-        <Card
-          title={
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Icon icon="lucide:list" size={20} className="text-blue-600 mr-2" />
-                <span className="text-lg font-semibold">Transaction History</span>
-              </div>
-              <Button
-                type="primary"
-                className="bg-green-600 hover:bg-green-700 border-0"
-                onClick={handleAddTransaction}
-              >
-                <Icon icon="lucide:plus" size={16} className="mr-1" />
-                Add Transaction
-              </Button>
-            </div>
-          }
-          className="shadow-md"
-        >
-          <Table
-            dataSource={transactions}
-            columns={transactionColumns}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} transactions`,
-            }}
-            rowKey="transaction_id"
-            className="custom-table"
-            loading={isLoadingTransactions}
-            locale={{
-              emptyText: (
-                <div className="text-center py-8">
-                  <Icon icon="lucide:receipt" size={48} className="text-gray-300 mx-auto mb-4" />
-                  <Text className="text-gray-500">No transactions found</Text>
-                  <br />
-                  <Text className="text-gray-400 text-sm">Add your first transaction to get started</Text>
+          {/* Transaction Stats */}
+          {transactionStats && (
+            <Row gutter={16} className="mb-8">
+              <Col span={8}>
+                <Card className="shadow-md">
+                  <Statistic
+                    title="Total Income"
+                    value={transactionStats.stats.total_income}
+                    precision={2}
+                    prefix="$"
+                    valueStyle={{ color: '#10b981' }}
+                  />
+                </Card>
+              </Col>
+              <Col span={8}>
+                <Card className="shadow-md">
+                  <Statistic
+                    title="Total Expenses"
+                    value={transactionStats.stats.total_expenses}
+                    precision={2}
+                    prefix="$"
+                    valueStyle={{ color: '#ef4444' }}
+                  />
+                </Card>
+              </Col>
+              <Col span={8}>
+                <Card className="shadow-md">
+                  <Statistic
+                    title="Net Amount"
+                    value={transactionStats.stats.net_amount}
+                    precision={2}
+                    prefix="$"
+                    valueStyle={{ color: transactionStats.stats.net_amount >= 0 ? '#10b981' : '#ef4444' }}
+                  />
+                </Card>
+              </Col>
+            </Row>
+          )}
+
+          {/* Transactions Table */}
+          <Card
+            title={
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Icon icon="lucide:list" size={20} className="text-blue-600 mr-2" />
+                  <span className="text-lg font-semibold">Transaction History</span>
                 </div>
-              ),
-            }}
-          />
-        </Card>
+                <Button
+                  type="primary"
+                  className="bg-green-600 hover:bg-green-700 border-0"
+                  onClick={handleAddTransaction}
+                >
+                  <Icon icon="lucide:plus" size={16} className="mr-1" />
+                  Add Transaction
+                </Button>
+              </div>
+            }
+            className="shadow-md"
+          >
+            <Table
+              dataSource={transactions}
+              columns={transactionColumns}
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} transactions`,
+              }}
+              rowKey="transaction_id"
+              className="custom-table"
+              loading={isLoadingTransactions}
+              locale={{
+                emptyText: (
+                  <div className="text-center py-8">
+                    <Icon icon="lucide:receipt" size={48} className="text-gray-300 mx-auto mb-4" />
+                    <Text className="text-gray-500">No transactions found</Text>
+                    <br />
+                    <Text className="text-gray-400 text-sm">Add your first transaction to get started</Text>
+                  </div>
+                ),
+              }}
+            />
+          </Card>
+        </div>
+
+        {/* Add Transaction Drawer */}
+        <AddTransactionDrawer
+          isOpen={isDrawerOpen}
+          onClose={() => {
+            setIsDrawerOpen(false);
+            setEditingTransaction(null);
+          }}
+          cashbookId={cashbookId}
+          transaction={editingTransaction}
+        />
+
+        {/* Category Assignment Modal */}
+        <CategoryAssignmentModal
+          open={isCategoryModalOpen}
+          onClose={handleCategoryModalClose}
+          transaction={selectedTransaction}
+        />
       </div>
-
-      {/* Add Transaction Drawer */}
-      <AddTransactionDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => {
-          setIsDrawerOpen(false);
-          setEditingTransaction(null);
-        }}
-        cashbookId={cashbookId}
-        transaction={editingTransaction}
-      />
-
-      {/* Category Assignment Modal */}
-      <CategoryAssignmentModal
-        open={isCategoryModalOpen}
-        onClose={handleCategoryModalClose}
-        transaction={selectedTransaction}
-      />
-    </div>
+    </DashboardLayout>
   );
 };
 

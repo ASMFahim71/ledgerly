@@ -9,6 +9,7 @@ import { useTransactions } from '~/hooks/useTransactions';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import AddCashbookModal from '~/components/AddCashbookModal';
+import DashboardLayout from '~/components/DashboardLayout';
 import type { Cashbook } from '~/lib/api';
 
 const { Title, Text } = Typography;
@@ -149,188 +150,179 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Icon icon="lucide:wallet" size={32} className="text-blue-600 mr-3" />
+    <DashboardLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
               <Title level={2} className="text-2xl font-bold text-gray-800 mb-0">
-                Ledgerly Dashboard
+                Dashboard Overview
               </Title>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                type="link"
-                onClick={() => router.push('/categories')}
-                className="text-gray-600 hover:text-blue-600"
-              >
-                <Icon icon="lucide:tag" size={16} className="mr-1" />
-                Categories
-              </Button>
-              <Text className="text-gray-600">
-                Welcome, {user?.name}!
-              </Text>
-              <Button
-                onClick={() => logout()}
-                className="bg-red-600 hover:bg-red-700 border-0 text-white"
-              >
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <Title level={1} className="text-4xl font-bold text-gray-800 mb-4">
-            Welcome to Your Dashboard
-          </Title>
-          <Text className="text-xl text-gray-600">
-            Start managing your finances with Ledgerly
-          </Text>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
-            <div className="flex items-center mb-4">
-              <Icon icon="lucide:book-open" size={24} className="text-blue-600 mr-3" />
-              <Title level={3} className="text-lg font-semibold text-gray-800 mb-0">
-                Cashbooks
-              </Title>
-            </div>
-            <Text className="text-3xl font-bold text-blue-600">
-              {isLoadingCashbooks ? '...' : cashbooks.length}
-            </Text>
-            <Text className="text-gray-600">&nbsp; Total cashbooks</Text>
-          </div>
-
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
-            <div className="flex items-center mb-4">
-              <Icon icon="lucide:trending-up" size={24} className="text-green-600 mr-3" />
-              <Title level={3} className="text-lg font-semibold text-gray-800 mb-0">
-                Income
-              </Title>
-            </div>
-            <Text className="text-3xl font-bold text-green-600">
-              ${transactionStats?.stats?.total_income?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
-            </Text>
-            <Text className="text-gray-600">&nbsp; This month</Text>
-          </div>
-
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
-            <div className="flex items-center mb-4">
-              <Icon icon="lucide:trending-down" size={24} className="text-red-600 mr-3" />
-              <Title level={3} className="text-lg font-semibold text-gray-800 mb-0">
-                Expenses
-              </Title>
-            </div>
-            <Text className="text-3xl font-bold text-red-600">
-              ${transactionStats?.stats?.total_expenses?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
-            </Text>
-            <Text className="text-gray-600">&nbsp; This month</Text>
-          </div>
-        </div>
-
-        {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Cashbooks Table - 2/3 width */}
-          <div className="lg:col-span-2">
-            <Card
-              title={
-                <div className="flex items-center">
-                  <Icon icon="lucide:book-open" size={20} className="text-blue-600 mr-2" />
-                  <span className="text-lg font-semibold">Your Cashbooks</span>
-                </div>
-              }
-              className="shadow-md"
-              extra={
+              <div className="flex items-center space-x-4">
+                <Text className="text-gray-600">
+                  Welcome, {user?.name}!
+                </Text>
                 <Button
-                  type="primary"
-                  className="bg-blue-600 hover:bg-blue-700 border-0"
-                  onClick={handleOpenModal}
+                  onClick={() => logout()}
+                  className="bg-red-600 hover:bg-red-700 border-0 text-white"
                 >
-                  <Icon icon="lucide:plus" size={16} className="mr-1" />
-                  New Cashbook
+                  Logout
                 </Button>
-              }
-            >
-              <Table
-                dataSource={cashbooks}
-                columns={cashbookColumns}
-                pagination={false}
-                rowKey="cashbook_id"
-                className="custom-table"
-                loading={isLoadingCashbooks}
-                locale={{
-                  emptyText: (
-                    <div className="text-center py-8">
-                      <Icon icon="lucide:book-open" size={48} className="text-gray-300 mx-auto mb-4" />
-                      <Text className="text-gray-500">No cashbooks found</Text>
-                      <br />
-                      <Text className="text-gray-400 text-sm">Create your first cashbook to get started</Text>
-                    </div>
-                  ),
-                }}
-              />
-            </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center mb-8">
+            <Title level={1} className="text-4xl font-bold text-gray-800 mb-4">
+              Welcome to Your Dashboard
+            </Title>
+            <Text className="text-xl text-gray-600">
+              Start managing your finances with Ledgerly
+            </Text>
           </div>
 
-          {/* Recent Transactions Timeline - 1/3 width */}
-          <div className="lg:col-span-1">
-            <Card
-              title={
-                <div className="flex items-center">
-                  <Icon icon="lucide:clock" size={20} className="text-green-600 mr-2" />
-                  <span className="text-lg font-semibold">Recent Transactions</span>
-                </div>
-              }
-              className="shadow-md"
-            >
-              <Timeline
-                items={transactions.slice(0, 5).map((transaction) => ({
-                  color: transaction.type === 'income' ? 'green' : 'red',
-                  children: (
-                    <div className="mb-4">
-                      <div className="flex justify-between items-start mb-1">
-                        <Text className="font-medium text-gray-800">
-                          {transaction.source_person}
-                        </Text>
-                        <Text className={`font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                          {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        </Text>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
+              <div className="flex items-center mb-4">
+                <Icon icon="lucide:book-open" size={24} className="text-blue-600 mr-3" />
+                <Title level={3} className="text-lg font-semibold text-gray-800 mb-0">
+                  Cashbooks
+                </Title>
+              </div>
+              <Text className="text-3xl font-bold text-blue-600">
+                {isLoadingCashbooks ? '...' : cashbooks.length}
+              </Text>
+              <Text className="text-gray-600">&nbsp; Total cashbooks</Text>
+            </div>
+
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
+              <div className="flex items-center mb-4">
+                <Icon icon="lucide:trending-up" size={24} className="text-green-600 mr-3" />
+                <Title level={3} className="text-lg font-semibold text-gray-800 mb-0">
+                  Income
+                </Title>
+              </div>
+              <Text className="text-3xl font-bold text-green-600">
+                ${transactionStats?.stats?.total_income?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+              </Text>
+              <Text className="text-gray-600">&nbsp; This month</Text>
+            </div>
+
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
+              <div className="flex items-center mb-4">
+                <Icon icon="lucide:trending-down" size={24} className="text-red-600 mr-3" />
+                <Title level={3} className="text-lg font-semibold text-gray-800 mb-0">
+                  Expenses
+                </Title>
+              </div>
+              <Text className="text-3xl font-bold text-red-600">
+                ${transactionStats?.stats?.total_expenses?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+              </Text>
+              <Text className="text-gray-600">&nbsp; This month</Text>
+            </div>
+          </div>
+
+          {/* Main Dashboard Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Cashbooks Table - 2/3 width */}
+            <div className="lg:col-span-2">
+              <Card
+                title={
+                  <div className="flex items-center">
+                    <Icon icon="lucide:book-open" size={20} className="text-blue-600 mr-2" />
+                    <span className="text-lg font-semibold">Your Cashbooks</span>
+                  </div>
+                }
+                className="shadow-md"
+                extra={
+                  <Button
+                    type="primary"
+                    className="bg-blue-600 hover:bg-blue-700 border-0"
+                    onClick={handleOpenModal}
+                  >
+                    <Icon icon="lucide:plus" size={16} className="mr-1" />
+                    New Cashbook
+                  </Button>
+                }
+              >
+                <Table
+                  dataSource={cashbooks}
+                  columns={cashbookColumns}
+                  pagination={false}
+                  rowKey="cashbook_id"
+                  className="custom-table"
+                  loading={isLoadingCashbooks}
+                  locale={{
+                    emptyText: (
+                      <div className="text-center py-8">
+                        <Icon icon="lucide:book-open" size={48} className="text-gray-300 mx-auto mb-4" />
+                        <Text className="text-gray-500">No cashbooks found</Text>
+                        <br />
+                        <Text className="text-gray-400 text-sm">Create your first cashbook to get started</Text>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-2">
-                          <Text className="text-gray-500 text-xs">
-                            {transaction.description || 'No description'}
+                    ),
+                  }}
+                />
+              </Card>
+            </div>
+
+            {/* Recent Transactions Timeline - 1/3 width */}
+            <div className="lg:col-span-1">
+              <Card
+                title={
+                  <div className="flex items-center">
+                    <Icon icon="lucide:clock" size={20} className="text-green-600 mr-2" />
+                    <span className="text-lg font-semibold">Recent Transactions</span>
+                  </div>
+                }
+                className="shadow-md"
+              >
+                <Timeline
+                  items={transactions.slice(0, 5).map((transaction) => ({
+                    color: transaction.type === 'income' ? 'green' : 'red',
+                    children: (
+                      <div className="mb-4">
+                        <div className="flex justify-between items-start mb-1">
+                          <Text className="font-medium text-gray-800">
+                            {transaction.source_person}
+                          </Text>
+                          <Text className={`font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                            {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </Text>
                         </div>
-                        <Text className="text-gray-400 text-xs">
-                          {new Date(transaction.transaction_date).toLocaleDateString()}
-                        </Text>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center space-x-2">
+                            <Text className="text-gray-500 text-xs">
+                              {transaction.description || 'No description'}
+                            </Text>
+                          </div>
+                          <Text className="text-gray-400 text-xs">
+                            {new Date(transaction.transaction_date).toLocaleDateString()}
+                          </Text>
+                        </div>
                       </div>
-                    </div>
-                  ),
-                }))}
-              />
-            </Card>
+                    ),
+                  }))}
+                />
+              </Card>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Add Cashbook Modal */}
-      <AddCashbookModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        cashbook={editingCashbook}
-      />
-    </div>
+        {/* Add Cashbook Modal */}
+        <AddCashbookModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          cashbook={editingCashbook}
+        />
+      </div>
+    </DashboardLayout>
   );
 };
 

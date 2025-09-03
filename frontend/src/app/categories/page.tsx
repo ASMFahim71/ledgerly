@@ -22,6 +22,7 @@ import { Category } from '~/lib/api';
 import CategoryForm from '../../components/CategoryForm';
 import useToggle from '~/hooks/useToggle';
 import { Icon } from '~/icons/Icon';
+import DashboardLayout from '~/components/DashboardLayout';
 
 const { Title, Text } = Typography;
 
@@ -135,174 +136,176 @@ const CategoriesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Button
-                onClick={() => router.push('/dashboard')}
-                className="mr-4"
-                icon={<Icon icon="lucide:arrow-left" size={16} />}
-              >
-                Back to Dashboard
-              </Button>
-              <Icon icon="lucide:tag" size={32} className="text-blue-600 mr-3" />
-              <div>
-                <Title level={2} className="text-2xl font-bold text-gray-800 mb-0">
-                  Category Management
-                </Title>
-                <Text className="text-gray-600">
-                  Manage your income and expense categories
-                </Text>
+    <DashboardLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center">
+                <Button
+                  onClick={() => router.push('/dashboard')}
+                  className="mr-4"
+                  icon={<Icon icon="lucide:arrow-left" size={16} />}
+                >
+                  Back to Dashboard
+                </Button>
+                <Icon icon="lucide:tag" size={32} className="text-blue-600 mr-3" />
+                <div>
+                  <Title level={2} className="text-2xl font-bold text-gray-800 mb-0">
+                    Category Management
+                  </Title>
+                  <Text className="text-gray-600">
+                    Manage your income and expense categories
+                  </Text>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        {/* Statistics Cards */}
-        <Row gutter={[16, 16]} className="mb-6">
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-gray-500 text-sm">Total Categories</div>
-                  <div className="text-2xl font-semibold">{categoryStats?.stats?.length || 0}</div>
-                </div>
-                <Icon icon="lucide:bar-chart-3" size={24} className="text-gray-400" />
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-gray-500 text-sm">Income Categories</div>
-                  <div className="text-2xl font-semibold text-green-600">
-                    {categoryStats?.stats?.filter(cat => cat.type === 'income').length || 0}
+          {/* Statistics Cards */}
+          <Row gutter={[16, 16]} className="mb-6">
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-gray-500 text-sm">Total Categories</div>
+                    <div className="text-2xl font-semibold">{categoryStats?.stats?.length || 0}</div>
                   </div>
+                  <Icon icon="lucide:bar-chart-3" size={24} className="text-gray-400" />
                 </div>
-                <Icon icon="lucide:trending-up" size={24} className="text-green-500" />
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-gray-500 text-sm">Expense Categories</div>
-                  <div className="text-2xl font-semibold text-red-600">
-                    {categoryStats?.stats?.filter(cat => cat.type === 'expense').length || 0}
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-gray-500 text-sm">Income Categories</div>
+                    <div className="text-2xl font-semibold text-green-600">
+                      {categoryStats?.stats?.filter(cat => cat.type === 'income').length || 0}
+                    </div>
                   </div>
+                  <Icon icon="lucide:trending-up" size={24} className="text-green-500" />
                 </div>
-                <Icon icon="lucide:trending-down" size={24} className="text-red-500" />
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-gray-500 text-sm">With Transactions</div>
-                  <div className="text-2xl font-semibold">
-                    {categoryStats?.stats?.filter(cat => cat.transaction_count > 0).length || 0}
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-gray-500 text-sm">Expense Categories</div>
+                    <div className="text-2xl font-semibold text-red-600">
+                      {categoryStats?.stats?.filter(cat => cat.type === 'expense').length || 0}
+                    </div>
                   </div>
+                  <Icon icon="lucide:trending-down" size={24} className="text-red-500" />
                 </div>
-                <Icon icon="lucide:banknote" size={24} className="text-gray-400" />
-              </div>
-            </Card>
-          </Col>
-        </Row>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-gray-500 text-sm">With Transactions</div>
+                    <div className="text-2xl font-semibold">
+                      {categoryStats?.stats?.filter(cat => cat.transaction_count > 0).length || 0}
+                    </div>
+                  </div>
+                  <Icon icon="lucide:banknote" size={24} className="text-gray-400" />
+                </div>
+              </Card>
+            </Col>
+          </Row>
 
-        {/* Most Used Categories */}
-        {categoryStats?.stats && categoryStats.stats.length > 0 && (
-          <Card title="Most Used Categories" className="!mb-6">
-            <Row gutter={[16, 16]}>
-              {categoryStats.stats
-                .sort((a, b) => b.transaction_count - a.transaction_count)
-                .slice(0, 4)
-                .map((category) => (
-                  <Col xs={24} sm={12} md={8} lg={6} key={category.category_id}>
-                    <Card size="small">
-                      <div className="text-center">
-                        <Tag
-                          color={category.type === 'income' ? 'green' : 'red'}
-                          className="mb-2"
-                        >
-                          {category.type.toUpperCase()}
-                        </Tag>
-                        <div className="font-semibold">{category.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {category.transaction_count} transactions
+          {/* Most Used Categories */}
+          {categoryStats?.stats && categoryStats.stats.length > 0 && (
+            <Card title="Most Used Categories" className="!mb-6">
+              <Row gutter={[16, 16]}>
+                {categoryStats.stats
+                  .sort((a, b) => b.transaction_count - a.transaction_count)
+                  .slice(0, 4)
+                  .map((category) => (
+                    <Col xs={24} sm={12} md={8} lg={6} key={category.category_id}>
+                      <Card size="small">
+                        <div className="text-center">
+                          <Tag
+                            color={category.type === 'income' ? 'green' : 'red'}
+                            className="mb-2"
+                          >
+                            {category.type.toUpperCase()}
+                          </Tag>
+                          <div className="font-semibold">{category.name}</div>
+                          <div className="text-sm text-gray-500">
+                            {category.transaction_count} transactions
+                          </div>
+                          <div className="text-sm font-medium">
+                            ${category.type === 'income'
+                              ? parseFloat(category.total_income).toLocaleString('en-US', { minimumFractionDigits: 2 })
+                              : parseFloat(category.total_expense).toLocaleString('en-US', { minimumFractionDigits: 2 })
+                            }
+                          </div>
                         </div>
-                        <div className="text-sm font-medium">
-                          ${category.type === 'income'
-                            ? parseFloat(category.total_income).toLocaleString('en-US', { minimumFractionDigits: 2 })
-                            : parseFloat(category.total_expense).toLocaleString('en-US', { minimumFractionDigits: 2 })
-                          }
-                        </div>
-                      </div>
-                    </Card>
-                  </Col>
-                ))}
-            </Row>
+                      </Card>
+                    </Col>
+                  ))}
+              </Row>
+            </Card>
+          )}
+
+          {/* Categories Table */}
+          <Card
+            title="All Categories"
+            extra={
+              <Button
+                type="primary"
+                icon={<Icon icon="lucide:plus" size={16} />}
+                onClick={toggleFormOpen}
+              >
+                Add Category
+              </Button>
+            }
+          >
+            <Spin spinning={isLoadingCategories}>
+              <Table
+                columns={columns}
+                dataSource={categories}
+                rowKey="category_id"
+                pagination={{
+                  pageSize: 10,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} categories`,
+                }}
+                locale={{
+                  emptyText: (
+                    <Empty
+                      description="No categories found"
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    >
+                      <Button type="primary" onClick={toggleFormOpen}>
+                        Create your first category
+                      </Button>
+                    </Empty>
+                  ),
+                }}
+              />
+            </Spin>
           </Card>
-        )}
 
-        {/* Categories Table */}
-        <Card
-          title="All Categories"
-          extra={
-            <Button
-              type="primary"
-              icon={<Icon icon="lucide:plus" size={16} />}
-              onClick={toggleFormOpen}
-            >
-              Add Category
-            </Button>
-          }
-        >
-          <Spin spinning={isLoadingCategories}>
-            <Table
-              columns={columns}
-              dataSource={categories}
-              rowKey="category_id"
-              pagination={{
-                pageSize: 10,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} categories`,
-              }}
-              locale={{
-                emptyText: (
-                  <Empty
-                    description="No categories found"
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  >
-                    <Button type="primary" onClick={toggleFormOpen}>
-                      Create your first category
-                    </Button>
-                  </Empty>
-                ),
-              }}
-            />
-          </Spin>
-        </Card>
-
-        {/* Category Form Modal */}
-        <CategoryForm
-          open={isFormOpen}
-          onClose={handleFormClose}
-          category={editingCategory}
-        />
+          {/* Category Form Modal */}
+          <CategoryForm
+            open={isFormOpen}
+            onClose={handleFormClose}
+            category={editingCategory}
+          />
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
