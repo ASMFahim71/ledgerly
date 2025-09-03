@@ -1,0 +1,35 @@
+# docker exec -it sql-container mysqlsh
+version: '3.1'
+
+services:
+  # app:
+  #   container_name: app-container
+  #   build: .
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - ledgerly
+
+  db:
+    # The container_name automatically becomes the hostname for database url. See db.js
+    container_name: sql-container
+    image: mysql:latest
+    ports:
+      - ${MYSQL_PORT}:3306
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - sqldata:/var/lib/mysql
+    networks:
+      - ledgerly
+
+volumes:
+  sqldata:
+
+
+networks:
+  ledgerly:
+    driver: bridge

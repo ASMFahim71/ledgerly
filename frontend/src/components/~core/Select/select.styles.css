@@ -1,0 +1,85 @@
+.select-override {
+  @apply block bg-white w-full min-w-[150px] xl:min-w-[200px] max-w-[100%] rounded-md xl:rounded-lg;
+}
+
+.select-override.ant-select-single {
+  height: auto !important;
+}
+
+.select-override .ant-select-selector {
+  @apply !p-2 !border-2 !shadow-none;
+}
+
+.select-override .ant-select-prefix {
+  @apply !text-white bg-primary px-2 rounded-md -translate-x-1;
+}
+
+.select-override.ant-select-dropdown {
+  @apply !p-2;
+}
+
+.ant-select-dropdown .ant-select-item {
+  @apply !p-2.5;
+}
+
+.select-override .ant-select-selection-item {
+  @apply !text-gray-900;
+}
+
+.select-override .ant-select-item-option-selected {
+  @apply !font-normal;
+}
+
+.ant-select-dropdown .ant-select-item-option-state {
+  @apply !hidden;
+}
+
+.ant-select-selection-overflow-item-rest .ant-select-selection-item {
+  padding: 0 !important;
+}
+
+/* .ant-select-selection-overflow-item .ant-select-selection-item-content:last-child { */
+.ant-select-selection-overflow-item-rest .ant-select-selection-item-content {
+  margin: 0 !important;
+}
+
+/* .select-cascader-override {
+  @apply xl:h-11 xl:min-h-11;
+
+  & .ant-select-selector {
+    @apply rounded-md border border-solid border-[#E5E5E7] xl:rounded-lg ;
+
+    & .ant-select-selection-wrap {
+      @apply self-center ;
+    }
+
+    & .ant-select-selection-placeholder {
+      @apply text-sm font-medium text-gray-800 ;
+    }
+  }
+} */
+
+/* .select-dropdown-override {
+  @apply z-[1202] rounded border border-solid border-[#E5E5E7] bg-white ;
+} */
+
+.select-dropdown-override-mobile {
+  @apply !fixed !z-[1203] !max-w-[100vw] !min-h-[350px] !w-full !inset-0 !top-auto !translate-y-0 !rounded-none !overflow-visible;
+  transition: all 1s ease-in-out;
+}
+
+.select-dropdown-override-mobile>div {
+  background: #fff;
+}
+
+.select-dropdown-override-mobile .ant-select-dropdown-hidden {
+  bottom: -100% !important;
+  transform: translateY(-100%) !important;
+}
+
+.rc-virtual-list-scrollbar-thumb {
+  width: 5px !important;
+  background: #c6c6c6 !important;
+  right: 0 !important;
+  transform: translateX(8px);
+}

@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  font-family: "Schoolbell", "Schoolbell Fallback", cursive !important;
+}
+
+/* .ant-input-affix-wrapper,
+.ant-input-number-input-wrap,
+.ant-select-selection-item,
+.ant-select-item-option-content {
+  @apply !font-outfit;
+} */
+
+.ant-picker {
+  @apply !p-2.5;
+}
+
+*::-webkit-scrollbar {
+  width: 2px;
+  height: 3px;
+}
+
+/* Track (background) */
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 10px;
+}
+
+/* Thumb (scroll handle) */
+*::-webkit-scrollbar-thumb {
+  background: #a0aec066;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2d3748, #4a5568);
+  width: 4px;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: #718096cc;
+  transform: scaleX(1.2);
+}
+
+/* Scrollbar corners */
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@media (hover: hover) {
+  * {
+    scrollbar-color: transparent transparent;
+  }
+
+  *:hover {
+    scrollbar-color: #a0aec080 #edf2f71a;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    opacity: 0;
+  }
+
+  *:hover::-webkit-scrollbar-thumb {
+    opacity: 1;
+  }
+}

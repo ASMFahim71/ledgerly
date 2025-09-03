@@ -1,0 +1,37 @@
+.ant-radio {
+  align-self: flex-start !important;
+  top: 3px;
+}
+
+.ant-radio-input {
+  width: 17px;
+  height: 17px;
+}
+
+.ant-radio-inner {
+  border-radius: 5px !important;
+}
+
+.ant-radio-inner::after {
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border: 0 !important;
+  border-radius: 5px !important;
+  background-color: #1b1e23 !important;
+  background-repeat: no-repeat;
+  background-image: url(/tick.svg);
+  background-position: center center;
+  background-size: 80%;
+  transform: scale(1.1) !important;
+}
+
+.ant-radio-wrapper-checked span:last-child {
+  color: #4d4d4d;
+}
+
+.ant-radio-inner:focus {
+  border: 0 !important;
+  box-shadow: none !important;
+}

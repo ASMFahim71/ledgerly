@@ -1,0 +1,62 @@
+{
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "ecmaFeatures": {
+      "modules": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  // "extends": [ "airbnb", "prettier" ],
+  "extends": [
+    "plugin:node/recommended",
+    "airbnb",
+    "prettier"
+  ],
+  "plugins": [
+    "prettier",
+    "import"
+  ],
+  "ignorePatterns": [
+    "**/build/**"
+  ],
+  "rules": {
+    "no-use-before-define": [
+      1
+    ],
+    "node/no-unsupported-features/es-syntax": "off",
+    "node/no-missing-require": "off",
+    "node/no-missing-import": "off",
+    "prettier/prettier": "off",
+    "import/extensions": "off",
+    "import/no-unresolved": "off",
+    "import/prefer-default-export": "off",
+    "node/no-unpublished-require": "off",
+    // "prettier/prettier": "error",
+    "spaced-comment": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-console": "off",
+    "consistent-return": "off",
+    "arrow-body-style": "off",
+    "func-names": "off",
+    "object-shorthand": "off",
+    "no-process-exit": "off",
+    "no-param-reassign": "off",
+    "no-return-await": "off",
+    "no-underscore-dangle": "off",
+    "class-methods-use-this": "off",
+    "prefer-destructuring": [
+      "error",
+      {
+        "object": true,
+        "array": false
+      }
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "req|res|next|val|_"
+      }
+    ]
+  }
+}

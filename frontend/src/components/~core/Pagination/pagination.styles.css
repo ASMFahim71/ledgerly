@@ -1,0 +1,33 @@
+.pagination-override .ant-pagination-prev {
+  @apply flex-1 !text-start mr-2;
+}
+
+.pagination-override .ant-pagination-next {
+  @apply flex-1 !text-end; 
+}
+
+.pagination-override .ant-pagination-item-active {
+  @apply !border-gray-400 !rounded-lg;
+}
+
+.pagination-override .ant-select-selector {
+  @apply !p-5;
+}
+
+.pagination-override .ant-select-arrow {
+  /* display: none !important; */
+  @apply translate-y-1;
+}
+
+.pagination-override .ant-select-arrow .anticon-search >svg {
+  height: 1rem;
+  width: 1rem;
+}
+
+.pagination-override .ant-pagination-options-quick-jumper>input {
+  @apply !px-4 min-w-16;
+}
+
+.prev-next-btn-override {
+  @apply flex items-center gap-1 px-3 py-2 lg:min-w-24 rounded-lg text-gray-400 hover:text-primary font-medium text-sm bg-white border border-gray-400 hover:border-primary;
+}

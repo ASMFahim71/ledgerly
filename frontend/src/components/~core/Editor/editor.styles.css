@@ -1,0 +1,45 @@
+.lexical-content-editable {
+  overflow: hidden scroll;
+}
+.lexical-content-editable:focus {
+  @apply outline-none border-2 border-gray-300;
+}
+.lexical-content-editable::-webkit-scrollbar {
+  display: none;
+}
+
+.lexical-attach-btn {
+  @apply flex gap-2 bg-white p-2 rounded-md;
+}
+.lexical-toolbar-btn {
+  @apply flex gap-2 justify-between p-2 rounded-md; /* bg-white */
+}
+.lexical-toolbar-btn-active {
+  @apply bg-primary text-white;
+}
+
+/* THEME overrides */
+.lexical-heading-h1 {
+  @apply inline-block font-bold text-2xl bg-black text-white;
+}
+.lexical-highlighter {
+  @apply text-white bg-primary;
+}
+.lexical-text-underline {
+  @apply underline;
+}
+.lexical-text-strikethrough {
+  @apply line-through;
+}
+.lexical-content-editable mark {
+  @apply bg-primary text-white;
+}
+
+/* TOOLBAR popup overrides */
+.popover-override .ant-popover-inner {
+  @apply !p-2 !bg-gray-50;
+}
+
+.popover-override .ant-popover-arrow {
+  @apply !hidden;
+}

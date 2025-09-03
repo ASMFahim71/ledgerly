@@ -1,0 +1,24 @@
+.switch-override {
+  &.ant-switch {
+    @apply rounded bg-gray-400;
+
+    & .ant-switch-inner {
+      @apply !pe-[24px] !ps-[8px];
+
+      & .ant-switch-inner-checked {
+        min-height: auto !important;
+        @apply relative right-[3px] top-[3px];
+      }
+
+      & .ant-switch-inner-unchecked {
+        position: relative;
+        margin-top: -18px;
+        right: -18px;
+      }
+    }
+
+    & .ant-switch-handle::before {
+      @apply rounded;
+    }
+  }
+}
