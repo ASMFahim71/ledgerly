@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Typography, Button, Table, Tag, Timeline, Card, message } from 'antd';
+import { Typography, Button, Table, Tag, Timeline, Card, message, Popconfirm } from 'antd';
 import { Icon } from '~/icons/Icon';
 import { useAuth } from '~/hooks/useAuth';
 import { useCashbooks } from '~/hooks/useCashbooks';
@@ -94,14 +94,21 @@ const DashboardPage = () => {
           >
             Edit
           </Button>
-          <Button
-            size="small"
-            danger
-            loading={deleteCashbookMutation.isPending}
-            onClick={() => handleDeleteCashbook(record.cashbook_id)}
+          <Popconfirm
+            title="Delete Cashbook"
+            description="Are you sure you want to delete this cashbook?"
+            onConfirm={() => handleDeleteCashbook(record.cashbook_id)}
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
+            <Button
+              size="small"
+              danger
+              loading={deleteCashbookMutation.isPending}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
         </div>
       ),
     },

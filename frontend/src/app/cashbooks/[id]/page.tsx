@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Typography, Button, Table, Tag, Card, message, Statistic, Row, Col, Space } from 'antd';
+import { Typography, Button, Table, Tag, Card, message, Statistic, Row, Col, Space, Popconfirm } from 'antd';
 import { Icon } from '~/icons/Icon';
 import { useAuth } from '~/hooks/useAuth';
 import { useCashbooks } from '~/hooks/useCashbooks';
@@ -106,6 +106,7 @@ const CashbookDetailPage = () => {
       title: 'Categories',
       dataIndex: 'categories',
       key: 'categories',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (categories: any[]) => (
         <Space wrap>
           {categories && categories.length > 0 ? (
@@ -152,14 +153,21 @@ const CashbookDetailPage = () => {
             <Icon icon="lucide:tag" size={12} className="mr-1" />
             Categories
           </Button>
-          <Button
-            size="small"
-            danger
-            loading={deleteTransactionMutation.isPending}
-            onClick={() => handleDeleteTransaction(record.transaction_id)}
+          <Popconfirm
+            title="Delete Transaction"
+            description="Are you sure you want to delete this transaction?"
+            onConfirm={() => handleDeleteTransaction(record.transaction_id)}
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
+            <Button
+              size="small"
+              danger
+              loading={deleteTransactionMutation.isPending}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
