@@ -18,6 +18,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onCollapse }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const isCashbookPage = pathname.startsWith('/cashbooks/');
+  const [openKeys, setOpenKeys] = React.useState<string[]>(isCashbookPage ? ['cashbooks'] : []);
 
   const { cashbooks = [], isLoadingCashbooks } = useCashbooks();
 
@@ -85,7 +87,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onCollapse }) => {
       <Menu
         mode="inline"
         selectedKeys={[pathname]}
-        defaultOpenKeys={['/cashbooks']}
+        openKeys={openKeys}
+        onOpenChange={setOpenKeys}
         items={menuItems}
         onClick={({ key }) => router.push(key)}
         className="border-0"
