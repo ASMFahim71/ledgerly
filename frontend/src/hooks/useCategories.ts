@@ -163,6 +163,7 @@ export const useCategories = () => {
     updateCategory: updateCategoryMutation.mutate,
     updateCategoryMutation,
     deleteCategory: deleteCategoryMutation.mutate,
+    deleteCategoryAsync: deleteCategoryMutation.mutateAsync,
     deleteCategoryMutation,
     assignCategoryToTransaction: assignCategoryMutation.mutate,
     assignCategoryMutation,

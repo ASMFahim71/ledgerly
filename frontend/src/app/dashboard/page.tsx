@@ -19,6 +19,7 @@ const DashboardPage = () => {
   const { transactions, transactionStats } = useTransactions();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCashbook, setEditingCashbook] = useState<Cashbook | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -86,7 +87,10 @@ const DashboardPage = () => {
           <Button
             size="small"
             className="border-gray-300"
-            onClick={() => router.push(`/cashbooks/${record.cashbook_id}/edit`)}
+            onClick={() => {
+              setEditingCashbook(record);
+              setIsModalOpen(true);
+            }}
           >
             Edit
           </Button>
@@ -113,11 +117,13 @@ const DashboardPage = () => {
   };
 
   const handleOpenModal = () => {
+    setEditingCashbook(null);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEditingCashbook(null);
   };
 
   if (isLoadingUser) {
@@ -148,6 +154,14 @@ const DashboardPage = () => {
               </Title>
             </div>
             <div className="flex items-center space-x-4">
+              <Button
+                type="link"
+                onClick={() => router.push('/categories')}
+                className="text-gray-600 hover:text-blue-600"
+              >
+                <Icon icon="lucide:tag" size={16} className="mr-1" />
+                Categories
+              </Button>
               <Text className="text-gray-600">
                 Welcome, {user?.name}!
               </Text>
@@ -307,6 +321,7 @@ const DashboardPage = () => {
       <AddCashbookModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        cashbook={editingCashbook}
       />
     </div>
   );

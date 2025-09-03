@@ -10,21 +10,48 @@ import type { CreateCashbookRequest } from '~/lib/api';
 interface AddCashbookModalProps {
   isOpen: boolean;
   onClose: () => void;
+  cashbook?: {
+    cashbook_id: number;
+    name: string;
+    description?: string;
+    initial_balance: number;
+  } | null;
 }
 
-const AddCashbookModal: React.FC<AddCashbookModalProps> = ({ isOpen, onClose }) => {
+const AddCashbookModal: React.FC<AddCashbookModalProps> = ({ isOpen, onClose, cashbook }) => {
   const [form] = Form.useForm<CreateCashbookRequest>();
-  const { createCashbook, createCashbookMutation } = useCashbooks();
+  const { createCashbook, createCashbookMutation, updateCashbook, updateCashbookMutation } = useCashbooks();
+
+  const isEditing = !!cashbook;
+
+  React.useEffect(() => {
+    if (isOpen) {
+      if (cashbook) {
+        form.setFieldsValue({
+          name: cashbook.name,
+          description: cashbook.description,
+          initial_balance: cashbook.initial_balance,
+        } as any);
+      } else {
+        form.resetFields();
+      }
+    }
+  }, [isOpen, cashbook, form]);
 
   const handleSubmit = async (values: CreateCashbookRequest) => {
     try {
-      await createCashbook(values);
-      message.success('Cashbook created successfully!');
+      if (isEditing && cashbook) {
+        await updateCashbook({ id: cashbook.cashbook_id, data: values });
+        message.success('Cashbook updated successfully!');
+      } else {
+        await createCashbook(values);
+        message.success('Cashbook created successfully!');
+      }
       form.resetFields();
       onClose();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      message.error('Failed to create cashbook. Please try again.');
+      message.error(isEditing ? 'Failed to update cashbook. Please try again.' : 'Failed to create cashbook. Please try again.');
     }
   };
 
@@ -37,8 +64,8 @@ const AddCashbookModal: React.FC<AddCashbookModalProps> = ({ isOpen, onClose }) 
     <Modal
       title={
         <div className="flex items-center">
-          <Icon icon="lucide:plus-circle" size={20} className="text-blue-600 mr-2" />
-          <span className="text-lg font-semibold">Create New Cashbook</span>
+          <Icon icon={isEditing ? 'lucide:pencil' : 'lucide:plus-circle'} size={20} className="text-blue-600 mr-2" />
+          <span className="text-lg font-semibold">{isEditing ? 'Edit Cashbook' : 'Create New Cashbook'}</span>
         </div>
       }
       open={isOpen}
@@ -114,11 +141,11 @@ const AddCashbookModal: React.FC<AddCashbookModalProps> = ({ isOpen, onClose }) 
             type="primary"
             htmlType="submit"
             size="large"
-            loading={createCashbookMutation.isPending}
-            disabled={createCashbookMutation.isPending}
+            loading={isEditing ? updateCashbookMutation.isPending : createCashbookMutation.isPending}
+            disabled={isEditing ? updateCashbookMutation.isPending : createCashbookMutation.isPending}
             className="bg-blue-600 hover:bg-blue-700 border-0"
           >
-            Create Cashbook
+            {isEditing ? 'Update Cashbook' : 'Create Cashbook'}
           </Button>
         </div>
       </Form>

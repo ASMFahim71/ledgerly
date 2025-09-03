@@ -5,7 +5,7 @@ import { Drawer, Form, Input, InputNumber, DatePicker, Select, Button, message }
 import { Icon } from '~/icons/Icon';
 import { useTransactions } from '~/hooks/useTransactions';
 import { useCategories } from '~/hooks/useCategories';
-import type { CreateTransactionRequest } from '~/lib/api';
+import type { CreateTransactionRequest, Transaction, UpdateTransactionRequest } from '~/lib/api';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
@@ -15,33 +15,63 @@ interface AddTransactionDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   cashbookId: number;
+  transaction?: Transaction | null;
 }
 
 const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
   isOpen,
   onClose,
-  cashbookId
+  cashbookId,
+  transaction
 }) => {
   const [form] = Form.useForm<CreateTransactionRequest>();
-  const { createTransaction, createTransactionMutation } = useTransactions();
+  const { createTransaction, createTransactionMutation, updateTransaction, updateTransactionMutation } = useTransactions();
   const { categories } = useCategories();
+
+  const isEditing = !!transaction;
+
+  React.useEffect(() => {
+    if (isOpen) {
+      if (transaction) {
+        form.setFieldsValue({
+          type: transaction.type,
+          amount: transaction.amount,
+          source_person: transaction.source_person,
+          description: transaction.description,
+          transaction_date: dayjs(transaction.transaction_date),
+          category_ids: (transaction.categories || []).map(c => c.category_id),
+        } as any);
+      } else {
+        form.resetFields();
+        form.setFieldsValue({
+          type: 'expense',
+          transaction_date: dayjs(),
+        } as any);
+      }
+    }
+  }, [isOpen, transaction, form]);
 
   const handleSubmit = async (values: CreateTransactionRequest) => {
     try {
-      // Format the date to YYYY-MM-DD
-      const formattedValues = {
+      // Format payload
+      const basePayload = {
         ...values,
         transaction_date: dayjs(values.transaction_date).format('YYYY-MM-DD'),
         cashbook_id: cashbookId,
-      };
+      } as CreateTransactionRequest & UpdateTransactionRequest;
 
-      await createTransaction(formattedValues);
-      message.success('Transaction created successfully!');
+      if (isEditing && transaction) {
+        await updateTransaction({ id: transaction.transaction_id, data: basePayload });
+        message.success('Transaction updated successfully!');
+      } else {
+        await createTransaction(basePayload);
+        message.success('Transaction created successfully!');
+      }
       form.resetFields();
       onClose();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      message.error('Failed to create transaction. Please try again.');
+      message.error(isEditing ? 'Failed to update transaction. Please try again.' : 'Failed to create transaction. Please try again.');
     }
   };
 
@@ -59,8 +89,8 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
     <Drawer
       title={
         <div className="flex items-center">
-          <Icon icon="lucide:plus-circle" size={20} className="text-green-600 mr-2" />
-          <span className="text-lg font-semibold">Add New Transaction</span>
+          <Icon icon={isEditing ? 'lucide:pencil' : 'lucide:plus-circle'} size={20} className={`${isEditing ? 'text-blue-600' : 'text-green-600'} mr-2`} />
+          <span className="text-lg font-semibold">{isEditing ? 'Edit Transaction' : 'Add New Transaction'}</span>
         </div>
       }
       open={isOpen}
@@ -76,12 +106,12 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
             type="primary"
             htmlType="submit"
             size="large"
-            loading={createTransactionMutation.isPending}
-            disabled={createTransactionMutation.isPending}
-            className="bg-green-600 hover:bg-green-700 border-0"
+            loading={isEditing ? updateTransactionMutation.isPending : createTransactionMutation.isPending}
+            disabled={isEditing ? updateTransactionMutation.isPending : createTransactionMutation.isPending}
+            className={`${isEditing ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'} border-0`}
             onClick={() => form.submit()}
           >
-            Create Transaction
+            {isEditing ? 'Update Transaction' : 'Create Transaction'}
           </Button>
         </div>
       }
@@ -91,10 +121,7 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
         layout="vertical"
         onFinish={handleSubmit}
         className="mt-4"
-        initialValues={{
-          type: 'expense',
-          transaction_date: dayjs(),
-        }}
+        initialValues={undefined}
       >
         <Form.Item
           label="Transaction Type"
@@ -132,11 +159,11 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
             prefix="$"
             className="w-full"
             size="large"
-            min={0.01}
-            step={0.01}
+            min={0.01 as number}
+            step={0.01 as number}
             precision={2}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+            parser={(value) => Number((value ?? '').replace(/\$\s?|(,*)/g, ''))}
           />
         </Form.Item>
 

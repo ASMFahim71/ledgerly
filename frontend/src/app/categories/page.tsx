@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Card, 
   Button, 
@@ -11,29 +12,21 @@ import {
   message, 
   Row, 
   Col, 
-  Statistic,
   Typography,
-  Divider,
   Empty,
   Spin
 } from 'antd';
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  DollarOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  BarChartOutlined
-} from '@ant-design/icons';
+// Using project Icon (lucide) instead of Ant icons
 import { useCategories } from '~/hooks/useCategories';
 import { Category } from '~/lib/api';
-import CategoryForm from '~/components/CategoryForm';
-import { useToggle } from '~/hooks/useToggle';
+import CategoryForm from '../../components/CategoryForm';
+import useToggle from '~/hooks/useToggle';
+import { Icon } from '~/icons/Icon';
 
 const { Title, Text } = Typography;
 
 const CategoriesPage: React.FC = () => {
+  const router = useRouter();
   const {
     categories,
     isLoadingCategories,
@@ -41,6 +34,7 @@ const CategoriesPage: React.FC = () => {
     categoryStats,
     isLoadingStats,
     deleteCategory,
+    deleteCategoryAsync,
     deleteCategoryMutation,
   } = useCategories();
 
@@ -54,7 +48,7 @@ const CategoriesPage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await deleteCategory(id);
+      await deleteCategoryAsync(id);
       message.success('Category deleted successfully');
     } catch (error) {
       message.error('Failed to delete category');
@@ -80,8 +74,8 @@ const CategoriesPage: React.FC = () => {
       render: (type: 'income' | 'expense') => (
         <Tag 
           color={type === 'income' ? 'green' : 'red'} 
-          icon={type === 'income' ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
         >
+          <Icon icon={type === 'income' ? 'lucide:trending-up' : 'lucide:trending-down'} size={12} className="mr-1" />
           {type.toUpperCase()}
         </Tag>
       ),
@@ -99,7 +93,7 @@ const CategoriesPage: React.FC = () => {
         <Space>
           <Button
             type="text"
-            icon={<EditOutlined />}
+            icon={<Icon icon="lucide:edit-3" size={16} />}
             onClick={() => handleEdit(record)}
           >
             Edit
@@ -114,7 +108,7 @@ const CategoriesPage: React.FC = () => {
             <Button
               type="text"
               danger
-              icon={<DeleteOutlined />}
+              icon={<Icon icon="lucide:trash-2" size={16} />}
               loading={deleteCategoryMutation.isPending}
             >
               Delete
@@ -139,59 +133,80 @@ const CategoriesPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <Title level={2} className="mb-2">
-          <BarChartOutlined className="mr-2" />
-          Category Management
-        </Title>
-        <Text type="secondary">
-          Manage your income and expense categories
-        </Text>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <Button
+                onClick={() => router.push('/dashboard')}
+                className="mr-4"
+                icon={<Icon icon="lucide:arrow-left" size={16} />}
+              >
+                Back to Dashboard
+              </Button>
+              <Icon icon="lucide:tag" size={32} className="text-blue-600 mr-3" />
+              <div>
+                <Title level={2} className="text-2xl font-bold text-gray-800 mb-0">
+                  Category Management
+                </Title>
+                <Text className="text-gray-600">
+                  Manage your income and expense categories
+                </Text>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       {/* Statistics Cards */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} sm={12} md={6}>
           <Card>
-            <Statistic
-              title="Total Categories"
-              value={categoryStats?.total_categories || 0}
-              prefix={<BarChartOutlined />}
-              loading={isLoadingStats}
-            />
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-gray-500 text-sm">Total Categories</div>
+                <div className="text-2xl font-semibold">{categoryStats?.total_categories || 0}</div>
+              </div>
+              <Icon icon="lucide:bar-chart-3" size={24} className="text-gray-400" />
+            </div>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card>
-            <Statistic
-              title="Income Categories"
-              value={categoryStats?.income_categories || 0}
-              prefix={<ArrowUpOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-              loading={isLoadingStats}
-            />
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-gray-500 text-sm">Income Categories</div>
+                <div className="text-2xl font-semibold text-green-600">{categoryStats?.income_categories || 0}</div>
+              </div>
+              <Icon icon="lucide:trending-up" size={24} className="text-green-500" />
+            </div>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card>
-            <Statistic
-              title="Expense Categories"
-              value={categoryStats?.expense_categories || 0}
-              prefix={<ArrowDownOutlined />}
-              valueStyle={{ color: '#ff4d4f' }}
-              loading={isLoadingStats}
-            />
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-gray-500 text-sm">Expense Categories</div>
+                <div className="text-2xl font-semibold text-red-600">{categoryStats?.expense_categories || 0}</div>
+              </div>
+              <Icon icon="lucide:trending-down" size={24} className="text-red-500" />
+            </div>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card>
-            <Statistic
-              title="With Transactions"
-              value={categoryStats?.categories_with_transactions || 0}
-              prefix={<DollarOutlined />}
-              loading={isLoadingStats}
-            />
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-gray-500 text-sm">With Transactions</div>
+                <div className="text-2xl font-semibold">{categoryStats?.categories_with_transactions || 0}</div>
+              </div>
+              <Icon icon="lucide:banknote" size={24} className="text-gray-400" />
+            </div>
           </Card>
         </Col>
       </Row>
@@ -231,7 +246,7 @@ const CategoriesPage: React.FC = () => {
         extra={
           <Button
             type="primary"
-            icon={<PlusOutlined />}
+            icon={<Icon icon="lucide:plus" size={16} />}
             onClick={toggleFormOpen}
           >
             Add Category
@@ -272,6 +287,7 @@ const CategoriesPage: React.FC = () => {
         onClose={handleFormClose}
         category={editingCategory}
       />
+      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Typography, Button, Table, Tag, Card, message, Statistic, Row, Col } from 'antd';
+import { Typography, Button, Table, Tag, Card, message, Statistic, Row, Col, Space } from 'antd';
 import { Icon } from '~/icons/Icon';
 import { useAuth } from '~/hooks/useAuth';
 import { useCashbooks } from '~/hooks/useCashbooks';
@@ -9,6 +9,7 @@ import { useTransactions } from '~/hooks/useTransactions';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import AddTransactionDrawer from '~/components/AddTransactionDrawer';
+import CategoryAssignmentModal from '~/components/CategoryAssignmentModal';
 import type { Transaction } from '~/lib/api';
 
 const { Title, Text } = Typography;
@@ -19,6 +20,9 @@ const CashbookDetailPage = () => {
   const params = useParams();
   const cashbookId = Number(params.id);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   // Get cashbook data
   const { cashbooks, isLoadingCashbooks } = useCashbooks();
@@ -99,17 +103,54 @@ const CashbookDetailPage = () => {
       ),
     },
     {
+      title: 'Categories',
+      dataIndex: 'categories',
+      key: 'categories',
+      render: (categories: any[]) => (
+        <Space wrap>
+          {categories && categories.length > 0 ? (
+            categories.map((category) => (
+              <Tag
+                key={category.category_id}
+                color={category.type === 'income' ? 'green' : 'red'}
+              >
+                <Icon
+                  icon={category.type === 'income' ? 'lucide:trending-up' : 'lucide:trending-down'}
+                  size={10}
+                  className="mr-1"
+                />
+                {category.name}
+              </Tag>
+            ))
+          ) : (
+            <Text type="secondary" className="text-xs">No categories</Text>
+          )}
+        </Space>
+      ),
+    },
+    {
       title: 'Actions',
       key: 'actions',
       render: (_: unknown, record: Transaction) => (
-        <div className="flex space-x-2">
+        <Space>
           <Button
             size="small"
             type="primary"
             className="bg-blue-600 hover:bg-blue-700 border-0"
-            onClick={() => router.push(`/transactions/${record.transaction_id}/edit`)}
+            onClick={() => {
+              setEditingTransaction(record);
+              setIsDrawerOpen(true);
+            }}
           >
             Edit
+          </Button>
+          <Button
+            size="small"
+            className="bg-purple-600 hover:bg-purple-700 border-0 text-white"
+            onClick={() => handleManageCategories(record)}
+          >
+            <Icon icon="lucide:tag" size={12} className="mr-1" />
+            Categories
           </Button>
           <Button
             size="small"
@@ -119,7 +160,7 @@ const CashbookDetailPage = () => {
           >
             Delete
           </Button>
-        </div>
+        </Space>
       ),
     },
   ];
@@ -139,6 +180,16 @@ const CashbookDetailPage = () => {
 
   const handleAddTransaction = () => {
     setIsDrawerOpen(true);
+  };
+
+  const handleManageCategories = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleCategoryModalClose = () => {
+    setSelectedTransaction(null);
+    setIsCategoryModalOpen(false);
   };
 
   if (isLoadingUser || isLoadingCashbooks) {
@@ -181,6 +232,14 @@ const CashbookDetailPage = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <Button
+                type="link"
+                onClick={() => router.push('/categories')}
+                className="text-gray-600 hover:text-blue-600"
+              >
+                <Icon icon="lucide:tag" size={16} className="mr-1" />
+                Categories
+              </Button>
               <Text className="text-gray-600">
                 Welcome, {user?.name}!
               </Text>
@@ -329,8 +388,19 @@ const CashbookDetailPage = () => {
       {/* Add Transaction Drawer */}
       <AddTransactionDrawer
         isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setEditingTransaction(null);
+        }}
         cashbookId={cashbookId}
+        transaction={editingTransaction}
+      />
+
+      {/* Category Assignment Modal */}
+      <CategoryAssignmentModal
+        open={isCategoryModalOpen}
+        onClose={handleCategoryModalClose}
+        transaction={selectedTransaction}
       />
     </div>
   );
