@@ -40,6 +40,21 @@ export const useTransactions = (cashbookId?: number) => {
         // Ensure all items have required properties
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const processedTransactions = transactionsData.map((item: any) => {
+          // Parse categories if it's a JSON string
+          let categories = [];
+          try {
+            if (typeof item.categories === 'string') {
+              categories = JSON.parse(item.categories);
+            } else if (Array.isArray(item.categories)) {
+              categories = item.categories;
+            }
+            // Filter out null category entries (from JSON_ARRAYAGG when no categories)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            categories = categories.filter((cat: any) => cat && cat.category_id);
+          } catch (e) {
+            console.warn('Error parsing categories:', e);
+          }
+
           return {
             transaction_id: (item.transaction_id as number) || (item.id as number) || 0,
             user_id: (item.user_id as number) || 0,
@@ -51,7 +66,7 @@ export const useTransactions = (cashbookId?: number) => {
             transaction_date: (item.transaction_date as string) || new Date().toISOString().split('T')[0],
             created_at: (item.created_at as string) || new Date().toISOString(),
             updated_at: (item.updated_at as string) || new Date().toISOString(),
-            categories: (item.categories as any[]) || [],
+            categories: categories,
           };
         });
 

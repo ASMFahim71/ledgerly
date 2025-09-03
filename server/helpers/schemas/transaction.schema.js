@@ -18,7 +18,10 @@ const createTransactionSchema = z.object({
     .optional(),
   transaction_date: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Transaction date must be in YYYY-MM-DD format')
-    .or(z.date())
+    .or(z.date()),
+  category_ids: z.array(z.number().int('Category ID must be an integer').positive('Category ID must be positive'))
+    .optional()
+    .default([])
 });
 
 const updateTransactionSchema = z.object({
@@ -43,7 +46,10 @@ const updateTransactionSchema = z.object({
   transaction_date: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Transaction date must be in YYYY-MM-DD format')
     .or(z.date())
+    .optional(),
+  category_ids: z.array(z.number().int('Category ID must be an integer').positive('Category ID must be positive'))
     .optional()
+    .default([])
 });
 
 module.exports = { createTransactionSchema, updateTransactionSchema };

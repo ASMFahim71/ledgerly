@@ -6,29 +6,36 @@ const APIFeatures = require('../helpers/apiFeatures');
 const { createTransactionSchema, updateTransactionSchema } = require('../helpers/schemas/transaction.schema');
 
 // Helper function to update cashbook balance
-async function updateCashbookBalance(cashbookId) {
-  const [[balanceResult]] = await sql.query(
+async function updateCashbookBalance(connection, cashbookId) {
+  const [[balanceResult]] = await connection.query(
     `SELECT 
-      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
-      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expense
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0) as net_balance
     FROM transactions 
     WHERE cashbook_id = ?`,
     [cashbookId]
   );
 
-  const netBalance = parseFloat(balanceResult.total_income) - parseFloat(balanceResult.total_expense);
-
-  await sql.query(
+  await connection.query(
     'UPDATE cashbooks SET current_balance = ? WHERE cashbook_id = ?',
-    [netBalance, cashbookId]
+    [balanceResult.net_balance, cashbookId]
   );
 }
 
 exports.getAllTransactions = tryCatch(async (req, res, next) => {
-  let q = `SELECT t.*, c.name as cashbook_name 
+  let q = `SELECT t.*, c.name as cashbook_name,
+           JSON_ARRAYAGG(
+             JSON_OBJECT(
+               'category_id', cat.category_id,
+               'name', cat.name,
+               'type', cat.type
+             )
+           ) as categories
            FROM transactions t 
            JOIN cashbooks c ON t.cashbook_id = c.cashbook_id 
-           WHERE t.user_id = ?`;
+           LEFT JOIN transaction_categories tc ON t.transaction_id = tc.transaction_id
+           LEFT JOIN categories cat ON tc.category_id = cat.category_id
+           WHERE t.user_id = ?
+           GROUP BY t.transaction_id`;
 
   // Add cashbook filter if provided
   if (req.query.cashbook_id) {
@@ -98,40 +105,81 @@ exports.createTransaction = tryCatch(async (req, res, next) => {
     return next(new ErrorStack('Cashbook not found or access denied!', 404));
   }
 
-  // Add user_id to the request body
+  // Add user_id to the request body and remove category_ids
+  const { category_ids, ...transactionFields } = result.data;
   const transactionData = {
-    ...result.data,
+    ...transactionFields,
     user_id: req.user.user_id
   };
 
   const { keys, values } = prepare(transactionData);
 
-  const [data] = await sql.query(
-    `INSERT INTO transactions (${keys.join(', ')}) VALUES (${keys.map(() => '?').join(', ')})`,
-    [...values]
-  );
+  // Start a transaction
+  const connection = await sql.getConnection();
+  await connection.beginTransaction();
 
-  if (!data.insertId) {
-    return next(new ErrorStack("Couldn't create transaction!", 500));
+  try {
+    // Create the transaction
+    const [data] = await connection.query(
+      `INSERT INTO transactions (${keys.join(', ')}) VALUES (${keys.map(() => '?').join(', ')})`,
+      [...values]
+    );
+
+    if (!data.insertId) {
+      await connection.rollback();
+      return next(new ErrorStack("Couldn't create transaction!", 500));
+    }
+
+    // If category_ids are provided, create category assignments
+    if (category_ids && category_ids.length > 0) {
+      const categoryValues = category_ids.map(categoryId => [data.insertId, categoryId]);
+      await connection.query(
+        'INSERT INTO transaction_categories (transaction_id, category_id) VALUES ?',
+        [categoryValues]
+      );
+    }
+
+    // Get the created transaction with cashbook name
+    const [[transaction]] = await connection.query(
+      `SELECT t.*, c.name as cashbook_name
+       FROM transactions t 
+       JOIN cashbooks c ON t.cashbook_id = c.cashbook_id 
+       WHERE t.transaction_id = ?`,
+      [data.insertId]
+    );
+
+    // Get categories if any were assigned
+    let categories = [];
+    if (category_ids && category_ids.length > 0) {
+      const [categoryResults] = await connection.query(
+        `SELECT cat.category_id, cat.name, cat.type
+         FROM categories cat
+         WHERE cat.category_id IN (?)`,
+        [category_ids]
+      );
+      categories = categoryResults;
+    }
+
+    // Add categories to transaction object
+    transaction.categories = categories;
+
+    // Update cashbook current balance
+    await updateCashbookBalance(connection, result.data.cashbook_id);
+
+    // Commit the transaction
+    await connection.commit();
+
+    res.status(201).json({
+      status: true,
+      message: "Transaction created successfully!",
+      data: { transaction }
+    });
+  } catch (error) {
+    await connection.rollback();
+    return next(new ErrorStack(error.message || "Couldn't create transaction!", 500));
+  } finally {
+    connection.release();
   }
-
-  // Get the created transaction with cashbook name
-  const [[transaction]] = await sql.query(
-    `SELECT t.*, c.name as cashbook_name 
-     FROM transactions t 
-     JOIN cashbooks c ON t.cashbook_id = c.cashbook_id 
-     WHERE t.transaction_id = ?`,
-    [data.insertId]
-  );
-
-  // Update cashbook current balance
-  await updateCashbookBalance(result.data.cashbook_id);
-
-  res.status(201).json({
-    status: true,
-    message: "Transaction created successfully!",
-    data: { transaction }
-  });
 });
 
 exports.updateTransaction = tryCatch(async (req, res, next) => {
@@ -166,39 +214,89 @@ exports.updateTransaction = tryCatch(async (req, res, next) => {
     }
   }
 
-  const { keys, values } = prepare(result.data);
+  // Start a transaction
+  const connection = await sql.getConnection();
+  await connection.beginTransaction();
 
-  const [updateResult] = await sql.query(
-    `UPDATE transactions SET ${keys.map(key => `${key} = ?`).join(', ')} WHERE transaction_id = ? AND user_id = ?`,
-    [...values, req.params.id, req.user.user_id]
-  );
+  try {
+    // Remove category_ids from transaction update
+    const { category_ids, ...transactionFields } = result.data;
+    const { keys, values } = prepare(transactionFields);
 
-  if (updateResult.affectedRows !== 1) {
-    return next(new ErrorStack('Couldn\'t update this transaction!', 500));
+    const [updateResult] = await connection.query(
+      `UPDATE transactions SET ${keys.map(key => `${key} = ?`).join(', ')} WHERE transaction_id = ? AND user_id = ?`,
+      [...values, req.params.id, req.user.user_id]
+    );
+
+    if (updateResult.affectedRows !== 1) {
+      await connection.rollback();
+      return next(new ErrorStack('Couldn\'t update this transaction!', 500));
+    }
+
+    // Update categories if provided
+    if (category_ids !== undefined) {
+      // First delete existing category assignments
+      await connection.query(
+        'DELETE FROM transaction_categories WHERE transaction_id = ?',
+        [req.params.id]
+      );
+
+      // Then insert new ones if any
+      if (category_ids && category_ids.length > 0) {
+        const categoryValues = category_ids.map(categoryId => [req.params.id, categoryId]);
+        await connection.query(
+          'INSERT INTO transaction_categories (transaction_id, category_id) VALUES ?',
+          [categoryValues]
+        );
+      }
+    }
+
+    // Get the updated transaction
+    const [[transaction]] = await connection.query(
+      `SELECT t.*, c.name as cashbook_name 
+       FROM transactions t 
+       JOIN cashbooks c ON t.cashbook_id = c.cashbook_id 
+       WHERE t.transaction_id = ?`,
+      [req.params.id]
+    );
+
+    // Get categories if any were assigned
+    let categories = [];
+    if (category_ids && category_ids.length > 0) {
+      const [categoryResults] = await connection.query(
+        `SELECT cat.category_id, cat.name, cat.type
+         FROM categories cat
+         WHERE cat.category_id IN (?)`,
+        [category_ids]
+      );
+      categories = categoryResults;
+    }
+
+    // Add categories to transaction object
+    transaction.categories = categories;
+
+    // Update cashbook balances for both old and new cashbook if cashbook_id changed
+    if (result.data.cashbook_id && result.data.cashbook_id !== existingTransaction.cashbook_id) {
+      await updateCashbookBalance(connection, existingTransaction.cashbook_id);
+      await updateCashbookBalance(connection, result.data.cashbook_id);
+    } else {
+      await updateCashbookBalance(connection, transaction.cashbook_id);
+    }
+
+    // Commit the transaction
+    await connection.commit();
+
+    res.status(200).json({
+      status: true,
+      message: "Transaction updated successfully!",
+      data: { transaction }
+    });
+  } catch (error) {
+    await connection.rollback();
+    return next(new ErrorStack(error.message || "Couldn't update transaction!", 500));
+  } finally {
+    connection.release();
   }
-
-  // Get the updated transaction
-  const [[transaction]] = await sql.query(
-    `SELECT t.*, c.name as cashbook_name 
-     FROM transactions t 
-     JOIN cashbooks c ON t.cashbook_id = c.cashbook_id 
-     WHERE t.transaction_id = ?`,
-    [req.params.id]
-  );
-
-  // Update cashbook balances for both old and new cashbook if cashbook_id changed
-  if (result.data.cashbook_id && result.data.cashbook_id !== existingTransaction.cashbook_id) {
-    await updateCashbookBalance(existingTransaction.cashbook_id);
-    await updateCashbookBalance(result.data.cashbook_id);
-  } else {
-    await updateCashbookBalance(transaction.cashbook_id);
-  }
-
-  res.status(200).json({
-    status: true,
-    message: "Transaction updated successfully!",
-    data: { transaction }
-  });
 });
 
 exports.deleteTransaction = tryCatch(async (req, res, next) => {

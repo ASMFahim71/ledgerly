@@ -66,6 +66,8 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
         cashbook_id: cashbookId,
       } as CreateTransactionRequest & UpdateTransactionRequest;
 
+      console.log({ basePayload });
+
       if (isEditing && transaction) {
         await updateTransaction({ id: transaction.transaction_id, data: basePayload });
         message.success('Transaction updated successfully!');
@@ -212,7 +214,7 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
           <InputNumber
             placeholder="0.00"
             prefix="$"
-            className="w-full"
+            className="!w-full"
             size="large"
             min={0.01 as number}
             step={0.01 as number}
