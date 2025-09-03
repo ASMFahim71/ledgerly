@@ -206,7 +206,7 @@ const DashboardPage = () => {
             <Text className="text-3xl font-bold text-blue-600">
               {isLoadingCashbooks ? '...' : cashbooks.length}
             </Text>
-            <Text className="text-gray-600">Total cashbooks</Text>
+            <Text className="text-gray-600">&nbsp; Total cashbooks</Text>
           </div>
 
           <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
@@ -217,9 +217,9 @@ const DashboardPage = () => {
               </Title>
             </div>
             <Text className="text-3xl font-bold text-green-600">
-              ${transactionStats?.total_income?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+              ${transactionStats?.stats?.total_income?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
             </Text>
-            <Text className="text-gray-600">This month</Text>
+            <Text className="text-gray-600">&nbsp; This month</Text>
           </div>
 
           <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md">
@@ -230,9 +230,9 @@ const DashboardPage = () => {
               </Title>
             </div>
             <Text className="text-3xl font-bold text-red-600">
-              ${transactionStats?.total_expenses?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+              ${transactionStats?.stats?.total_expenses?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
             </Text>
-            <Text className="text-gray-600">This month</Text>
+            <Text className="text-gray-600">&nbsp; This month</Text>
           </div>
         </div>
 
