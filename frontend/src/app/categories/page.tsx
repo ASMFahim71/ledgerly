@@ -2,16 +2,16 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Card, 
-  Button, 
-  Table, 
-  Space, 
-  Tag, 
-  Popconfirm, 
-  message, 
-  Row, 
-  Col, 
+import {
+  Card,
+  Button,
+  Table,
+  Space,
+  Tag,
+  Popconfirm,
+  message,
+  Row,
+  Col,
   Typography,
   Empty,
   Spin
@@ -32,11 +32,11 @@ const CategoriesPage: React.FC = () => {
     isLoadingCategories,
     categoriesError,
     categoryStats,
-    isLoadingStats,
-    deleteCategory,
     deleteCategoryAsync,
     deleteCategoryMutation,
   } = useCategories();
+
+  console.log({ categoryStats })
 
   const [isFormOpen, toggleFormOpen] = useToggle(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -50,6 +50,7 @@ const CategoriesPage: React.FC = () => {
     try {
       await deleteCategoryAsync(id);
       message.success('Category deleted successfully');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error('Failed to delete category');
     }
@@ -72,8 +73,8 @@ const CategoriesPage: React.FC = () => {
       dataIndex: 'type',
       key: 'type',
       render: (type: 'income' | 'expense') => (
-        <Tag 
-          color={type === 'income' ? 'green' : 'red'} 
+        <Tag
+          color={type === 'income' ? 'green' : 'red'}
         >
           <Icon icon={type === 'income' ? 'lucide:trending-up' : 'lucide:trending-down'} size={12} className="mr-1" />
           {type.toUpperCase()}
@@ -89,6 +90,7 @@ const CategoriesPage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (_: any, record: Category) => (
         <Space>
           <Button
@@ -123,8 +125,8 @@ const CategoriesPage: React.FC = () => {
     return (
       <div className="p-6">
         <Card>
-          <Empty 
-            description="Failed to load categories" 
+          <Empty
+            description="Failed to load categories"
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         </Card>
@@ -163,130 +165,142 @@ const CategoriesPage: React.FC = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]} className="mb-6">
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-gray-500 text-sm">Total Categories</div>
-                <div className="text-2xl font-semibold">{categoryStats?.total_categories || 0}</div>
+        {/* Statistics Cards */}
+        <Row gutter={[16, 16]} className="mb-6">
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-gray-500 text-sm">Total Categories</div>
+                  <div className="text-2xl font-semibold">{categoryStats?.stats?.length || 0}</div>
+                </div>
+                <Icon icon="lucide:bar-chart-3" size={24} className="text-gray-400" />
               </div>
-              <Icon icon="lucide:bar-chart-3" size={24} className="text-gray-400" />
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-gray-500 text-sm">Income Categories</div>
-                <div className="text-2xl font-semibold text-green-600">{categoryStats?.income_categories || 0}</div>
-              </div>
-              <Icon icon="lucide:trending-up" size={24} className="text-green-500" />
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-gray-500 text-sm">Expense Categories</div>
-                <div className="text-2xl font-semibold text-red-600">{categoryStats?.expense_categories || 0}</div>
-              </div>
-              <Icon icon="lucide:trending-down" size={24} className="text-red-500" />
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-gray-500 text-sm">With Transactions</div>
-                <div className="text-2xl font-semibold">{categoryStats?.categories_with_transactions || 0}</div>
-              </div>
-              <Icon icon="lucide:banknote" size={24} className="text-gray-400" />
-            </div>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Most Used Categories */}
-      {categoryStats?.most_used_categories && categoryStats.most_used_categories.length > 0 && (
-        <Card title="Most Used Categories" className="mb-6">
-          <Row gutter={[16, 16]}>
-            {categoryStats.most_used_categories.map((category) => (
-              <Col xs={24} sm={12} md={8} lg={6} key={category.category_id}>
-                <Card size="small">
-                  <div className="text-center">
-                    <Tag 
-                      color={category.type === 'income' ? 'green' : 'red'}
-                      className="mb-2"
-                    >
-                      {category.type.toUpperCase()}
-                    </Tag>
-                    <div className="font-semibold">{category.name}</div>
-                    <div className="text-sm text-gray-500">
-                      {category.transaction_count} transactions
-                    </div>
-                    <div className="text-sm font-medium">
-                      ${category.total_amount.toLocaleString()}
-                    </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-gray-500 text-sm">Income Categories</div>
+                  <div className="text-2xl font-semibold text-green-600">
+                    {categoryStats?.stats?.filter(cat => cat.type === 'income').length || 0}
                   </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+                </div>
+                <Icon icon="lucide:trending-up" size={24} className="text-green-500" />
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-gray-500 text-sm">Expense Categories</div>
+                  <div className="text-2xl font-semibold text-red-600">
+                    {categoryStats?.stats?.filter(cat => cat.type === 'expense').length || 0}
+                  </div>
+                </div>
+                <Icon icon="lucide:trending-down" size={24} className="text-red-500" />
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-gray-500 text-sm">With Transactions</div>
+                  <div className="text-2xl font-semibold">
+                    {categoryStats?.stats?.filter(cat => cat.transaction_count > 0).length || 0}
+                  </div>
+                </div>
+                <Icon icon="lucide:banknote" size={24} className="text-gray-400" />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Most Used Categories */}
+        {categoryStats?.stats && categoryStats.stats.length > 0 && (
+          <Card title="Most Used Categories" className="!mb-6">
+            <Row gutter={[16, 16]}>
+              {categoryStats.stats
+                .sort((a, b) => b.transaction_count - a.transaction_count)
+                .slice(0, 4)
+                .map((category) => (
+                  <Col xs={24} sm={12} md={8} lg={6} key={category.category_id}>
+                    <Card size="small">
+                      <div className="text-center">
+                        <Tag
+                          color={category.type === 'income' ? 'green' : 'red'}
+                          className="mb-2"
+                        >
+                          {category.type.toUpperCase()}
+                        </Tag>
+                        <div className="font-semibold">{category.name}</div>
+                        <div className="text-sm text-gray-500">
+                          {category.transaction_count} transactions
+                        </div>
+                        <div className="text-sm font-medium">
+                          ${category.type === 'income'
+                            ? parseFloat(category.total_income).toLocaleString('en-US', { minimumFractionDigits: 2 })
+                            : parseFloat(category.total_expense).toLocaleString('en-US', { minimumFractionDigits: 2 })
+                          }
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                ))}
+            </Row>
+          </Card>
+        )}
+
+        {/* Categories Table */}
+        <Card
+          title="All Categories"
+          extra={
+            <Button
+              type="primary"
+              icon={<Icon icon="lucide:plus" size={16} />}
+              onClick={toggleFormOpen}
+            >
+              Add Category
+            </Button>
+          }
+        >
+          <Spin spinning={isLoadingCategories}>
+            <Table
+              columns={columns}
+              dataSource={categories}
+              rowKey="category_id"
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} of ${total} categories`,
+              }}
+              locale={{
+                emptyText: (
+                  <Empty
+                    description="No categories found"
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  >
+                    <Button type="primary" onClick={toggleFormOpen}>
+                      Create your first category
+                    </Button>
+                  </Empty>
+                ),
+              }}
+            />
+          </Spin>
         </Card>
-      )}
 
-      {/* Categories Table */}
-      <Card
-        title="All Categories"
-        extra={
-          <Button
-            type="primary"
-            icon={<Icon icon="lucide:plus" size={16} />}
-            onClick={toggleFormOpen}
-          >
-            Add Category
-          </Button>
-        }
-      >
-        <Spin spinning={isLoadingCategories}>
-          <Table
-            columns={columns}
-            dataSource={categories}
-            rowKey="category_id"
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} categories`,
-            }}
-            locale={{
-              emptyText: (
-                <Empty
-                  description="No categories found"
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                >
-                  <Button type="primary" onClick={toggleFormOpen}>
-                    Create your first category
-                  </Button>
-                </Empty>
-              ),
-            }}
-          />
-        </Spin>
-      </Card>
-
-      {/* Category Form Modal */}
-      <CategoryForm
-        open={isFormOpen}
-        onClose={handleFormClose}
-        category={editingCategory}
-      />
+        {/* Category Form Modal */}
+        <CategoryForm
+          open={isFormOpen}
+          onClose={handleFormClose}
+          category={editingCategory}
+        />
       </div>
     </div>
   );

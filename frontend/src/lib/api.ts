@@ -128,18 +128,17 @@ interface UpdateCategoryRequest {
   type?: 'income' | 'expense';
 }
 
+interface CategoryStatsItem {
+  category_id: number;
+  name: string;
+  type: 'income' | 'expense';
+  transaction_count: number;
+  total_income: string;
+  total_expense: string;
+}
+
 interface CategoryStats {
-  total_categories: number;
-  income_categories: number;
-  expense_categories: number;
-  categories_with_transactions: number;
-  most_used_categories: Array<{
-    category_id: number;
-    name: string;
-    type: 'income' | 'expense';
-    transaction_count: number;
-    total_amount: number;
-  }>;
+  stats: CategoryStatsItem[];
 }
 
 interface AssignCategoryRequest {

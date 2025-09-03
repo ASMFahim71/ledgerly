@@ -210,7 +210,7 @@ exports.getCategoryStats = tryCatch(async (req, res, next) => {
     params.push(cashbookId);
   }
 
-  const [categoryStats] = await sql.query(
+  const [stats] = await sql.query(
     `SELECT 
       c.category_id,
       c.name,
@@ -229,7 +229,7 @@ exports.getCategoryStats = tryCatch(async (req, res, next) => {
 
   res.status(200).json({
     status: true,
-    data: { categoryStats }
+    data: { stats }
   });
 });
 
