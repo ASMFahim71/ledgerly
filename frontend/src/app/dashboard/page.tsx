@@ -230,7 +230,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Cashbooks Table - 2/3 width */}
           <div className="lg:col-span-2">
             <Card

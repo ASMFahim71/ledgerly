@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Drawer, Form, Input, InputNumber, DatePicker, Select, Button, message } from 'antd';
+import { Drawer, Form, Input, Select, InputNumber, DatePicker, Button, message } from 'antd';
 import { Icon } from '~/icons/Icon';
 import { useTransactions } from '~/hooks/useTransactions';
 import { useCategories } from '~/hooks/useCategories';
@@ -9,7 +9,6 @@ import type { CreateTransactionRequest, Transaction, UpdateTransactionRequest } 
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
-const { Option } = Select;
 
 interface AddTransactionDrawerProps {
   isOpen: boolean;
@@ -24,7 +23,10 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
   cashbookId,
   transaction
 }) => {
-  const [form] = Form.useForm<CreateTransactionRequest>();
+  interface FormValues extends Omit<CreateTransactionRequest, 'transaction_date'> {
+    transaction_date: dayjs.Dayjs;
+  }
+  const [form] = Form.useForm<FormValues>();
   const { createTransaction, createTransactionMutation, updateTransaction, updateTransactionMutation } = useTransactions();
   const { categories } = useCategories();
 
@@ -33,25 +35,29 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
   React.useEffect(() => {
     if (isOpen) {
       if (transaction) {
-        form.setFieldsValue({
+        const values = {
           type: transaction.type,
           amount: transaction.amount,
           source_person: transaction.source_person,
           description: transaction.description,
           transaction_date: dayjs(transaction.transaction_date),
           category_ids: (transaction.categories || []).map(c => c.category_id),
-        } as any);
+        } as FormValues;
+        form.setFieldsValue(values);
+        setCurrentType(transaction.type);
       } else {
         form.resetFields();
-        form.setFieldsValue({
+        const values = {
           type: 'expense',
           transaction_date: dayjs(),
-        } as any);
+        } as FormValues;
+        form.setFieldsValue(values);
+        setCurrentType('expense');
       }
     }
   }, [isOpen, transaction, form]);
 
-  const handleSubmit = async (values: CreateTransactionRequest) => {
+  const handleSubmit = async (values: FormValues) => {
     try {
       // Format payload
       const basePayload = {
@@ -80,10 +86,44 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
     onClose();
   };
 
+  const [categoryOptions, setCategoryOptions] = React.useState<{ value: number; label: React.ReactNode }[]>([]);
+
   // Filter categories by transaction type
-  const getFilteredCategories = (type: 'income' | 'expense') => {
+  const getFilteredCategories = React.useCallback((type: 'income' | 'expense') => {
+    if (!categories) return [];
     return categories.filter(category => category.type === type);
-  };
+  }, [categories]);
+
+  // Generate options from filtered categories
+  const generateCategoryOptions = React.useCallback((filteredCategories: typeof categories) => {
+    return filteredCategories.map((category) => ({
+      value: category.category_id,
+      label: (
+        <div className="flex items-center">
+          <Icon
+            icon={category.type === 'income' ? 'lucide:trending-up' : 'lucide:trending-down'}
+            size={14}
+            className={`mr-2 ${category.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
+          />
+          {category.name}
+        </div>
+      )
+    }));
+  }, []);
+
+  // Keep track of current type to update options
+  const [currentType, setCurrentType] = React.useState<'income' | 'expense' | undefined>(form.getFieldValue('type'));
+
+  // Update options when type changes
+  React.useEffect(() => {
+    if (currentType) {
+      const filteredCategories = getFilteredCategories(currentType);
+      const options = generateCategoryOptions(filteredCategories);
+      setCategoryOptions(options);
+    } else {
+      setCategoryOptions([]);
+    }
+  }, [currentType, categories, getFilteredCategories, generateCategoryOptions]);
 
   return (
     <Drawer
@@ -130,20 +170,35 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
             { required: true, message: 'Transaction type is required' },
           ]}
         >
-          <Select size="large">
-            <Option value="income">
-              <div className="flex items-center">
-                <Icon icon="lucide:trending-up" size={16} className="text-green-600 mr-2" />
-                Income
-              </div>
-            </Option>
-            <Option value="expense">
-              <div className="flex items-center">
-                <Icon icon="lucide:trending-down" size={16} className="text-red-600 mr-2" />
-                Expense
-              </div>
-            </Option>
-          </Select>
+          <Select
+            size="large"
+            onChange={(value) => {
+              const type = value as 'income' | 'expense';
+              setCurrentType(type);
+              // Clear category selection when type changes
+              form.setFieldValue('category_ids', []);
+            }}
+            options={[
+              {
+                value: 'income',
+                label: (
+                  <div className="flex items-center">
+                    <Icon icon="lucide:trending-up" size={16} className="text-green-600 mr-2" />
+                    Income
+                  </div>
+                )
+              },
+              {
+                value: 'expense',
+                label: (
+                  <div className="flex items-center">
+                    <Icon icon="lucide:trending-down" size={16} className="text-red-600 mr-2" />
+                    Expense
+                  </div>
+                )
+              }
+            ]}
+          />
         </Form.Item>
 
         <Form.Item
@@ -218,27 +273,7 @@ const AddTransactionDrawer: React.FC<AddTransactionDrawerProps> = ({
           name="category_ids"
           dependencies={['type']}
         >
-          <Select
-            mode="multiple"
-            placeholder="Select categories (optional)"
-            size="large"
-            allowClear
-            showSearch
-            optionFilterProp="children"
-          >
-            {form.getFieldValue('type') && getFilteredCategories(form.getFieldValue('type')).map((category) => (
-              <Option key={category.category_id} value={category.category_id}>
-                <div className="flex items-center">
-                  <Icon
-                    icon={category.type === 'income' ? 'lucide:trending-up' : 'lucide:trending-down'}
-                    size={14}
-                    className={`mr-2 ${category.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
-                  />
-                  {category.name}
-                </div>
-              </Option>
-            ))}
-          </Select>
+          <Select mode="multiple" placeholder="Select categories (optional)" size="large" allowClear showSearch optionFilterProp="label" options={categoryOptions} />
         </Form.Item>
       </Form>
     </Drawer>
