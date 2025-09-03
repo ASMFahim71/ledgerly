@@ -350,9 +350,11 @@ exports.getTransactionStats = tryCatch(async (req, res, next) => {
 
   const [[stats]] = await sql.query(
     `SELECT 
-      COUNT(*) as total_transactions,
+      COUNT(*) as transaction_count,
+      COUNT(CASE WHEN type = 'income' THEN 1 END) as income_count,
+      COUNT(CASE WHEN type = 'expense' THEN 1 END) as expense_count,
       COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
-      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expense,
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expenses,
       COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0) as net_amount
     FROM transactions t 
     ${whereClause}`,

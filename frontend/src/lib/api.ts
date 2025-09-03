@@ -95,13 +95,17 @@ interface UpdateTransactionRequest {
   category_ids?: number[];
 }
 
-interface TransactionStats {
+interface TransactionStatsData {
   total_income: number;
   total_expenses: number;
   net_amount: number;
   transaction_count: number;
   income_count: number;
   expense_count: number;
+}
+
+interface TransactionStats {
+  stats: TransactionStatsData;
 }
 
 // Category interfaces
