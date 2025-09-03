@@ -92,7 +92,7 @@ export const useTransactions = (cashbookId?: number) => {
     queryKey: ['transaction-stats', cashbookId],
     queryFn: async () => {
       try {
-        const response = await transactionApi.getTransactionStats();
+        const response = await transactionApi.getTransactionStats(cashbookId);
         return response.data;
       } catch (error) {
         console.error('Error fetching transaction stats:', error);

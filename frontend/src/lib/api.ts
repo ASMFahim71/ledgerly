@@ -340,7 +340,7 @@ export const transactionApi = {
   getAllTransactions: () => fetchApi<Transaction[]>('/api/transactions'),
 
   // Get transaction statistics
-  getTransactionStats: () => fetchApi<TransactionStats>('/api/transactions/stats'),
+  getTransactionStats: (cashbookId?: number) => fetchApi<TransactionStats>(`/api/transactions/stats${cashbookId ? `?cashbook_id=${cashbookId}` : ''}`),
 
   // Create a new transaction
   createTransaction: (data: CreateTransactionRequest) =>

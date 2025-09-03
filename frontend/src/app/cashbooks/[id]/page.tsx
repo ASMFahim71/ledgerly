@@ -315,7 +315,7 @@ const CashbookDetailPage = () => {
               <Card className="shadow-md">
                 <Statistic
                   title="Total Income"
-                  value={transactionStats.total_income}
+                  value={transactionStats.stats.total_income}
                   precision={2}
                   prefix="$"
                   valueStyle={{ color: '#10b981' }}
@@ -326,7 +326,7 @@ const CashbookDetailPage = () => {
               <Card className="shadow-md">
                 <Statistic
                   title="Total Expenses"
-                  value={transactionStats.total_expenses}
+                  value={transactionStats.stats.total_expenses}
                   precision={2}
                   prefix="$"
                   valueStyle={{ color: '#ef4444' }}
@@ -337,10 +337,10 @@ const CashbookDetailPage = () => {
               <Card className="shadow-md">
                 <Statistic
                   title="Net Amount"
-                  value={transactionStats.net_amount}
+                  value={transactionStats.stats.net_amount}
                   precision={2}
                   prefix="$"
-                  valueStyle={{ color: transactionStats.net_amount >= 0 ? '#10b981' : '#ef4444' }}
+                  valueStyle={{ color: transactionStats.stats.net_amount >= 0 ? '#10b981' : '#ef4444' }}
                 />
               </Card>
             </Col>
